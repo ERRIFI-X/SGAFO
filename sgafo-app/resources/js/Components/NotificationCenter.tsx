@@ -87,13 +87,19 @@ export default function NotificationCenter({ notifications }: Props) {
                                         className="p-4 hover:bg-slate-50 transition-colors group cursor-pointer relative border-l-4 border-transparent hover:border-blue-500"
                                         onClick={() => {
                                             setIsOpen(false);
+                                            
+                                            // 1. Immediately perform the action (synchronously in the user click context to prevent popup blocking)
+                                            if (notification.data.action_url) {
+                                                if (notification.data.action_url.includes('/download/')) {
+                                                    window.open(notification.data.action_url, '_blank');
+                                                } else {
+                                                    router.visit(notification.data.action_url);
+                                                }
+                                            }
+
+                                            // 2. Mark as read in the background asynchronously
                                             router.post(route('modules.notifications.mark-as-read', notification.id), {}, {
                                                 preserveScroll: true,
-                                                onSuccess: () => {
-                                                    if (notification.data.action_url) {
-                                                        router.visit(notification.data.action_url);
-                                                    }
-                                                }
                                             });
                                         }}
                                     >

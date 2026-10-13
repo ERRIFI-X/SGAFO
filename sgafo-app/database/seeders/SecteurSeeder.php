@@ -60,27 +60,35 @@ class SecteurSeeder extends Seeder
         ];
 
         foreach ($hierarchy as $cdcName => $cdcData) {
-            $cdc = \App\Models\Cdc::create([
-                'nom' => $cdcName,
-                'code' => $cdcData['code'],
-                'description' => "Complexe de Développement des Compétences spécialisé en $cdcName"
-            ]);
+            $cdc = \App\Models\Cdc::firstOrCreate(
+                ['code' => $cdcData['code']],
+                [
+                    'nom' => $cdcName,
+                    'description' => "Complexe de Développement des Compétences spécialisé en $cdcName"
+                ]
+            );
 
             $secteurIndex = 1;
             foreach ($cdcData['secteurs'] as $secteurName => $metiers) {
-                $secteur = \App\Models\Secteur::create([
-                    'nom' => $secteurName,
-                    'code' => $cdc->code . '-S' . $secteurIndex,
-                    'cdc_id' => $cdc->id
-                ]);
+                $secteurCode = $cdc->code . '-S' . $secteurIndex;
+                $secteur = \App\Models\Secteur::firstOrCreate(
+                    ['code' => $secteurCode],
+                    [
+                        'nom' => $secteurName,
+                        'cdc_id' => $cdc->id
+                    ]
+                );
 
                 $metierIndex = 1;
                 foreach ($metiers as $metierName) {
-                    \App\Models\Metier::create([
-                        'nom' => $metierName,
-                        'code' => $secteur->code . '-M' . $metierIndex,
-                        'secteur_id' => $secteur->id
-                    ]);
+                    $metierCode = $secteur->code . '-M' . $metierIndex;
+                    \App\Models\Metier::firstOrCreate(
+                        ['code' => $metierCode],
+                        [
+                            'nom' => $metierName,
+                            'secteur_id' => $secteur->id
+                        ]
+                    );
                     $metierIndex++;
                 }
                 $secteurIndex++;

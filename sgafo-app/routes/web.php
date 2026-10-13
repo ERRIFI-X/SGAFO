@@ -141,6 +141,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('catalogue-national', [\App\Http\Controllers\CatalogueController::class, 'index'])->name('modules.catalogue.index');
     Route::get('catalogue-national/{plan}', [\App\Http\Controllers\CatalogueController::class, 'show'])->name('modules.catalogue.show');
     
+    // Mes Attestations (Accessibles à tous les rôles ayant reçu des attestations)
+    Route::get('mes-attestations', [\App\Http\Controllers\AttestationController::class, 'myAttestations'])->name('modules.attestations.my-attestations');
+
     // Notifications (Accessibles à tous les rôles)
     Route::post('notifications/{id}/mark-as-read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('modules.notifications.mark-as-read');
     Route::post('notifications/mark-all-as-read', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('modules.notifications.mark-all-as-read');

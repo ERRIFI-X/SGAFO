@@ -22,10 +22,15 @@ class User extends Authenticatable
     protected $fillable = [
         'nom',
         'prenom',
+        'name',
         'email',
         'password',
         'statut',
         'is_externe',
+    ];
+
+    protected $appends = [
+        'name',
     ];
 
     /**
@@ -125,5 +130,19 @@ class User extends Authenticatable
     public function qcmAttempts()
     {
         return $this->hasMany(QcmTentative::class, 'user_id');
+    }
+
+    public function getNameAttribute(): string
+    {
+        return trim("{$this->prenom} {$this->nom}");
+    }
+
+    public function setNameAttribute(?string $value): void
+    {
+        if ($value) {
+            $parts = explode(' ', trim($value), 2);
+            $this->attributes['prenom'] = $parts[0] ?? '';
+            $this->attributes['nom'] = $parts[1] ?? ($parts[0] ?? '');
+        }
     }
 }

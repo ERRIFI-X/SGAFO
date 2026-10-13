@@ -44,8 +44,26 @@ class AttestationController extends Controller
             ];
         });
 
+        $attestationsData = Attestation::with(['plan.entite', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($attestation) {
+                return [
+                    'id' => $attestation->id,
+                    'type' => $attestation->type,
+                    'user_nom_complet' => $attestation->user ? "{$attestation->user->prenom} {$attestation->user->nom}" : '—',
+                    'user_email' => $attestation->user?->email ?? '—',
+                    'plan_titre' => $attestation->plan?->titre ?? '—',
+                    'entite' => $attestation->plan?->entite?->titre ?? '—',
+                    'created_at' => $attestation->created_at->format('d/m/Y H:i'),
+                    'downloaded_at' => $attestation->downloaded_at ? $attestation->downloaded_at->format('d/m/Y H:i') : null,
+                    'download_url' => route('attestations.download', $attestation->download_token),
+                ];
+            });
+
         return Inertia::render('Modules/Attestations/List', [
             'plans' => $plansData,
+            'attestations' => $attestationsData,
         ]);
     }
 
@@ -335,6 +353,36 @@ class AttestationController extends Controller
 
         return response()->download($filePath, $fileName, [
             'Content-Type' => 'application/pdf',
+        ]);
+    }
+
+    /**
+     * Affiche l'espace personnel "Mes Attestations" pour le formateur / participant connecté.
+     */
+    public function myAttestations()
+    {
+        $user = auth()->user();
+
+        $attestations = Attestation::where('user_id', $user->id)
+            ->with(['plan.entite', 'plan.themes'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($attestation) {
+                return [
+                    'id' => $attestation->id,
+                    'type' => $attestation->type,
+                    'plan_titre' => $attestation->plan?->titre ?? '—',
+                    'entite' => $attestation->plan?->entite?->titre ?? '—',
+                    'date_debut' => $attestation->plan?->date_debut?->format('d/m/Y') ?? '—',
+                    'date_fin' => $attestation->plan?->date_fin?->format('d/m/Y') ?? '—',
+                    'heures' => $attestation->plan?->themes->sum('duree_heures') ?? 0,
+                    'created_at' => $attestation->created_at->format('d/m/Y'),
+                    'download_url' => route('attestations.download', $attestation->download_token),
+                ];
+            });
+
+        return Inertia::render('Modules/Attestations/MyAttestations', [
+            'attestations' => $attestations,
         ]);
     }
 

@@ -368,9 +368,7 @@ export default function Edit({ mustVerifyEmail, status }: PageProps<{ mustVerify
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
                                     activeTab === tab.id
-                                        ? tab.id === 'danger'
-                                            ? 'bg-red-50 text-red-600 shadow-sm'
-                                            : 'bg-slate-900 text-white shadow-sm'
+                                        ? 'bg-slate-900 text-white shadow-sm'
                                         : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
                                 }`}
                             >

@@ -3,8 +3,8 @@ import { Head, Link } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 import Logo from '@/Components/Logo';
 import { PlanFormation } from '@/types/plan';
-import { ArrowRight, Users, BookOpen, Clock, Shield, Award, ChevronDown, MonitorPlay, Zap, ArrowUpRight } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Users, BookOpen, Clock, Shield, Award, ChevronDown, MonitorPlay, Zap, ArrowUpRight, Play, X, Film } from 'lucide-react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 interface WelcomeProps extends PageProps {
     stats: {
@@ -41,9 +41,9 @@ const FAQ_DATA = [
 ];
 
 // Framer Motion Variants
-const fadeInUp = {
+const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } }
 };
 
 const staggerContainer = {
@@ -64,6 +64,7 @@ export default function Welcome({
     const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
     const [isScrolled, setIsScrolled] = useState(false);
     const [activeFaqIndex, setActiveFaqIndex] = useState<number | null>(null);
+    const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
     // Auto-slide logic
     useEffect(() => {
@@ -160,17 +161,26 @@ export default function Welcome({
                             SGAFO centralise la planification stratégique, l'ingénierie et le pilotage des actions de formation continue pour le réseau OFPPT.
                         </motion.p>
 
-                        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-5">
                             <Link
                                 href={route('login')}
-                                className="w-full sm:w-auto px-10 py-5 bg-slate-900 text-white font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-blue-600 hover:shadow-[0_20px_40px_rgba(37,99,235,0.2)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group"
+                                className="w-full sm:w-auto px-9 py-5 bg-slate-900 text-white font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-blue-600 hover:shadow-[0_20px_40px_rgba(37,99,235,0.2)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group"
                             >
                                 Accéder au Système
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </Link>
-                            <a href="#catalogue" className="w-full sm:w-auto px-10 py-5 bg-white border border-slate-200 text-slate-700 font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-slate-50 hover:shadow-lg hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group">
-                                Voir le Catalogue
-                                <MonitorPlay className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                            <button
+                                onClick={() => setIsVideoModalOpen(true)}
+                                className="w-full sm:w-auto px-8 py-5 bg-white border border-slate-200 text-slate-800 font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-blue-50/60 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 group cursor-pointer"
+                            >
+                                <div className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center group-hover:scale-110 shadow-sm shadow-blue-500/40 transition-transform">
+                                    <Play className="w-3.5 h-3.5 fill-white translate-x-0.5" />
+                                </div>
+                                Vidéo Projet PFE
+                            </button>
+                            <a href="#catalogue" className="w-full sm:w-auto px-8 py-5 bg-slate-50 border border-slate-200 text-slate-600 font-black uppercase tracking-widest text-sm rounded-2xl hover:bg-slate-100 hover:text-slate-900 transition-all duration-300 flex items-center justify-center gap-2">
+                                <MonitorPlay className="w-4 h-4 text-slate-400" />
+                                Catalogue
                             </a>
                         </motion.div>
                     </motion.div>
@@ -354,9 +364,14 @@ export default function Welcome({
                                         Documentation Globale
                                         <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                                     </Link>
-                                    <a href="mailto:support.sgafo@ofppt.ma" className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all hover:-translate-y-1">
-                                        <MonitorPlay className="w-6 h-6" />
-                                    </a>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setIsVideoModalOpen(true)}
+                                        className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/30 transition-all hover:-translate-y-1 group cursor-pointer"
+                                        title="Voir la vidéo de présentation (Landscape 16:9)"
+                                    >
+                                        <Play className="w-6 h-6 fill-white group-hover:scale-110 transition-transform" />
+                                    </button>
                                 </div>
                             </motion.div>
 
@@ -415,6 +430,84 @@ export default function Welcome({
                     </div>
                 </div>
             </motion.footer>
+
+            {/* Modal Vidéo de Présentation (Landscape 16:9 Polished) */}
+            <AnimatePresence>
+                {isVideoModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 bg-slate-950/85 backdrop-blur-md"
+                        onClick={() => setIsVideoModalOpen(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            transition={{ type: "spring", duration: 0.5, bounce: 0.1 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="relative w-full max-w-5xl bg-slate-900 border border-slate-700/60 rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/40 text-white"
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                                        <Film className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base font-bold text-white tracking-tight">Projet PFE • Présentation SGAFO</h3>
+                                        <p className="text-xs text-slate-400">Projet de Fin d'Études OFPPT • Démonstration complète de la plateforme</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setIsVideoModalOpen(false)}
+                                    className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* 16:9 Landscape Video Container */}
+                            <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden">
+                                <video
+                                    src="/videos/presentation.mp4"
+                                    controls
+                                    autoPlay
+                                    poster="/videos/poster.png"
+                                    className="w-full h-full object-contain"
+                                >
+                                    Votre navigateur ne supporte pas la lecture de vidéos HTML5.
+                                </video>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="px-6 py-4 bg-slate-950/90 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span>Format Paysage (16:9) • Haute Définition Polished</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <a
+                                        href="/videos/presentation.mp4"
+                                        download="Projet_PFE_SGAFO.mp4"
+                                        className="text-blue-400 hover:text-blue-300 font-bold transition-colors"
+                                    >
+                                        Télécharger la vidéo
+                                    </a>
+                                    <span>•</span>
+                                    <Link
+                                        href={route('login')}
+                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors"
+                                    >
+                                        Accéder à la plateforme
+                                    </Link>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
